@@ -2,12 +2,14 @@ import React, { useCallback, useState } from 'react';
 import { useStore } from './store/useStore';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
+import { TabNav } from './components/TabNav';
 import { RoundView } from './components/RoundView';
 import { FinalScore } from './components/FinalScore';
+import { ProjectorView } from './components/ProjectorView';
 import { useKeyboard } from './hooks/useKeyboard';
 
 function App() {
-  const { activeTab } = useStore();
+  const { activeTab, displayMode } = useStore();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -29,10 +31,15 @@ function App() {
 
   useKeyboard(toggleFullscreen);
 
+  // If in projector mode, display the fullscreen audience view
+  if (displayMode === 'projector') {
+    return <ProjectorView />;
+  }
+
   return (
     <div className="app-root">
       <div className="app-container">
-        {/* Header with hamburger */}
+        {/* Header with drawer toggle */}
         <Header
           isFullscreen={isFullscreen}
           onFullscreen={toggleFullscreen}
@@ -40,13 +47,17 @@ function App() {
           sidebarOpen={sidebarOpen}
         />
 
-        {/* Body: sidebar + main content */}
+        {/* Body: sidebar drawer + main content */}
         <div className="app-body">
           {/* Sidebar drawer */}
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-          {/* Main content */}
+          {/* Main content area */}
           <main className="app-main">
+            {/* Horizontal tab navigation at the top */}
+            <TabNav />
+
+            {/* Inner view */}
             {activeTab < 5 ? (
               <RoundView
                 key={activeTab}
@@ -61,8 +72,10 @@ function App() {
         </div>
 
         {/* Keyboard hints */}
-        <div className="keyboard-hints">
+        <div className="keyboard-hints" style={{ borderTop: '1px solid var(--border-soft)', background: 'var(--bg-surface)', color: 'var(--text-tertiary)' }}>
           <span><kbd>1</kbd>–<kbd>6</kbd> Switch round</span>
+          <span><kbd>Ctrl+Z</kbd> Undo</span>
+          <span><kbd>Ctrl+Y</kbd> Redo</span>
           <span><kbd>/</kbd> Search</span>
           <span><kbd>F</kbd> Fullscreen</span>
           <span><kbd>Esc</kbd> Close popup</span>
